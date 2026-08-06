@@ -1,0 +1,154 @@
+
+R1
+
+Building configuration...
+
+Current configuration : 2670 bytes
+!
+! Last configuration change at 00:13:40 UTC Thu Aug 6 2026
+!
+version 16.7
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+platform qfp utilization monitor load 80
+no platform punt-keepalive disable-kernel-core
+platform console serial
+!
+hostname R1
+!
+boot-start-marker
+boot-end-marker
+!
+no aaa new-model
+no ip source-route
+!
+no ip domain lookup
+!
+subscriber templating
+!
+multilink bundle-name authenticated
+!
+
+key chain OSPF-KEY
+ key 20
+  key-string 6 YIVTPf^ECgSOGGfcHiKgHPFGAAB
+   cryptographic-algorithm hmac-sha-256
+password encryption aes
+
+
+license udi pid CSR1000V sn 9RUDQDC6RY0
+no license smart enable
+diagnostic bootup level minimal
+!
+spanning-tree extend system-id
+!
+redundancy
+!
+crypto ikev2 keyring NY-RING
+ peer NYC
+  address 0.0.0.0 0.0.0.0
+  pre-shared-key 6 ZKiCQV\e^WTcgSZNJUOS\eAgaAYZ]]F[B
+!
+crypto ikev2 profile NY-IKV2-PROFILE
+ match identity remote address 0.0.0.0
+ authentication remote pre-share
+ authentication local pre-share
+ keyring local NY-RING
+ dpd 20 5 on-demand
+!
+crypto ipsec security-association replay window-size 1024
+!
+crypto ipsec transform-set NY-TRANS esp-aes 256 esp-sha-hmac
+ mode transport
+!
+crypto ipsec profile NY-IPSEC-PROFILE
+ set transform-set NY-TRANS
+ set ikev2-profile NY-IKV2-PROFILE
+!
+interface Tunnel100
+ ip address 10.1.1.1 255.255.255.0
+ no ip redirects
+ ip mtu 1400
+ ip nhrp authentication 100
+ ip nhrp network-id 100
+ ip nhrp redirect
+ ip tcp adjust-mss 1360
+ tunnel source 170.16.1.1
+ tunnel mode gre multipoint
+ tunnel key 100
+ tunnel protection ipsec profile NY-IPSEC-PROFILE
+!
+interface GigabitEthernet1
+ ip address 170.16.1.1 255.255.255.252
+ ip ospf authentication key-chain OSPF-KEY
+ ip ospf 100 area 0
+ negotiation auto
+ bfd interval 50 min_rx 50 multiplier 3
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet2
+ no ip address
+ shutdown
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet3
+ no ip address
+ shutdown
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet4
+ no ip address
+ shutdown
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+router ospf 100
+ bfd all-interfaces
+!
+ip forward-protocol nd
+no ip http server
+ip http authentication local
+ip http secure-server
+!
+control-plane
+!
+line con 0
+ stopbits 1
+line vty 0 4
+ exec-timeout 5 0
+ login
+ transport input ssh
+line vty 5 15
+ exec-timeout 5 0
+ login
+ transport input ssh
+!
+wsma agent exec
+!
+wsma agent config
+!
+wsma agent filesys
+!
+wsma agent notify
+!
+!
+end
+
+
+
+
+
+
+
+
+
+
+
